@@ -37,6 +37,32 @@ def createDoGPyramid(GaussianPyramid, levels):
     return DoGPyramid, DoGLevels
 
 
+def computePrincipalCurvature(DoGPyramid):
+    PrincipalCurvature = []
+
+    for im in DoGPyramid:
+        # Compute the Hessian using Sobel filter
+        d_xx = cv2.Sobel(im, cv2.CV_64F, 2, 0, ksize=3)
+        d_yy = cv2.Sobel(im, cv2.CV_64F, 0, 2, ksize=3)
+        d_xy = cv2.Sobel(im, cv2.CV_64F, 1, 1, ksize=3)
+
+        _curvature = np.zeros_like(im)
+
+        for im_y in range(im.shape[0]):
+            for im_x in range(im.shape[1]):
+                _curvature[im_y, im_x] = calcCurvature(d_xx[im_y, im_x], d_yy[im_y, im_x], d_xy[im_y, im_x])
+
+        PrincipalCurvature.append(_curvature)
+
+    return np.stack(PrincipalCurvature)
+
+
+def calcCurvature(d_xx, d_yy, d_xy):
+    tr_H = d_xx + d_yy
+    det_H = d_xx * d_yy - d_xy ** 2
+    return tr_H ** 2 / det_H
+
+
 def main():
     sigma0 = 1
     k = 2**0.5
@@ -57,6 +83,9 @@ def main():
     # 1.3
     pyramid_dog, _ = createDoGPyramid(pyramid, levels)
     displayPyramid(pyramid_dog)
+
+    # 1.4
+    curvature = computePrincipalCurvature(pyramid_dog)
 
 
 if __name__ == "__main__":
