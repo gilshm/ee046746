@@ -1,1 +1,2 @@
-# Technion EE046746 - "Algorithms and Application in Computer Vision"
+# Technion EE046746
+"Algorithms and Applications in Computer Vision"
