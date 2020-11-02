@@ -201,6 +201,7 @@ def plotMatches(im1, im2, matches, locs1, locs2):
         plt.plot(x, y, 'r', lw=0.1)
         plt.plot(x, y, 'g.', lw=0.1)
 
+    plt.axis('off')
     plt.show()
 
 
