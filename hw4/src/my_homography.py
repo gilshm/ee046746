@@ -103,11 +103,31 @@ def ransacH(matches, locs1, locs2, nIter, tol):
     return bestH
 
 
-def getPoints_SIFT(im1,im2):
-    """
-    Your code here
-    """
-    return p1,p2
+def getPoints_SIFT(im1, im2):
+    sift = cv2.SIFT_create()
+
+    kp1, des1 = sift.detectAndCompute(im1, None)
+    kp2, des2 = sift.detectAndCompute(im2, None)
+
+    # Create Brute Force (BF) matcher object
+    bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True)
+
+    # Match descriptors
+    matches = bf.match(des1, des2)
+
+    # Sort them in the order of their distance.
+    matches = sorted(matches, key=lambda x: x.distance)
+
+    # Draw first 10 matches.
+    # im3 = cv2.drawMatches(im1, kp1, im2, kp2, matches[:10], None)
+    # plt.imshow(im3), plt.show()
+
+    p1, p2 = [], []
+    for match in matches[:10]:
+        p1.append(kp1[match.queryIdx].pt)
+        p2.append(kp2[match.trainIdx].pt)
+
+    return np.stack(p1).T, np.stack(p2).T
 
 
 if __name__ == '__main__':
