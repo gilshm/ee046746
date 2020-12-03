@@ -138,44 +138,28 @@ if __name__ == '__main__':
     im1_color = cv2.cvtColor(im1_color, cv2.COLOR_BGR2RGB)
     im2_color = cv2.cvtColor(im2_color, cv2.COLOR_BGR2RGB)
 
-    im1 = cv2.normalize(im1_color, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
-    im1 = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
+    im1 = cv2.cvtColor(im1_color, cv2.COLOR_BGR2GRAY)
+    im2 = cv2.cvtColor(im2_color, cv2.COLOR_BGR2GRAY)
 
-    im2 = cv2.normalize(im2_color, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
-    im2 = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
-
-    # Remove comments to find the H matrix
+    # Remove comments to find the H matrix based on manual point selection
     # p1, p2 = getPoints(im1, im2, 6)
     # H = computeH(p1, p2)
 
-    # The H matrix
-    H = np.array([[2.78963306e-03,  1.36841979e-05, -9.98415937e-01],
-                  [2.97656603e-04,  2.35700294e-03, -5.61163434e-02],
-                  [1.12866686e-06, -2.33769309e-07,  1.77398500e-03]])
+    # H matrix based on manual point selection
+    # H = np.array([[2.78963306e-03,  1.36841979e-05, -9.98415937e-01],
+    #               [2.97656603e-04,  2.35700294e-03, -5.61163434e-02],
+    #               [1.12866686e-06, -2.33769309e-07,  1.77398500e-03]])
 
-    # Remove comments to debug H
-    # p1 = np.array([[412.81967742, 453.14354839, 614.43903226, 853.02193548],
-    #                [183.99366371, 113.42688952, 194.07463145, 237.758825]])
-    #
+    # Finding H with SIFT keypoints
+    p1, p2 = getPoints_SIFT(im1, im2)
+    H = computeH(p1, p2)
+
+    # warped_img = warpH(im2_color, H, (800, 2000))
+    # pano_img = imageStitching(im1_color, warped_img)
+
     # plt.figure(figsize=(16, 12))
-    #
-    # plt.subplot(2, 2, 1)
-    # plt.imshow(cv2.cvtColor(im1, cv2.COLOR_BGR2RGB))
-    # plt.plot(p1[0], p1[1], 'o', color='red')
-    #
-    # p1_h = np.ones((3, 4))
-    # p1_h[0:2] = p1
-    # p2_h = H @ p1_h
-    # p2_h = p2_h / p2_h[2]
-    #
-    # plt.subplot(2, 2, 2)
-    # plt.imshow(cv2.cvtColor(im2, cv2.COLOR_BGR2RGB))
-    # plt.plot(p2_h[0], p2_h[1], 'o', color='red')
+    # plt.imshow(pano_img)
+    # plt.axis('off')
+    # plt.show()
 
-    warped_img = warpH(im2_color, H, (800, 2000))
-    pano_img = imageStitching(im1_color, warped_img)
 
-    plt.figure(figsize=(16, 12))
-    plt.imshow(pano_img)
-    plt.axis('off')
-    plt.show()
