@@ -96,14 +96,33 @@ def imageStitching(img1, warp_img2):
     return panoImg
 
 
-def ransacH(matches, locs1, locs2, nIter, tol):
-    """
-    Your code here
-    """
-    return bestH
+def ransacH(p1, p2, nIter, tol, req_points=4):
+    p2_proj = np.ones((3, p2.shape[1]))
+    p2_proj[0:2, :] = p2
+
+    best_ratio = 0
+
+    for i in range(nIter):
+        indices = np.random.randint(p1.shape[1], size=(req_points))
+        _p1 = p1[:, indices]
+        _p2 = p2[:, indices]
+
+        H = computeH(_p2, _p1)
+        p2_to_1 = np.matmul(H, p2_proj)
+        p2_to_1 = p2_to_1 / p2_to_1[2, :]
+
+        inliers = np.where(((p2_to_1[:2, :] - p1) ** 2).sum(0) < tol)[0]
+        inliers_ratio = inliers.size / p2.shape[1]
+
+        if inliers_ratio > best_ratio:
+            best_ratio = inliers_ratio
+            best_H = H
+
+    # Return H inverse since the other functions expect H to be from p1 to p2
+    return np.linalg.inv(best_H)
 
 
-def getPoints_SIFT(im1, im2):
+def getPoints_SIFT(im1, im2, points_num=10):
     sift = cv2.SIFT_create()
 
     kp1, des1 = sift.detectAndCompute(im1, None)
@@ -118,12 +137,12 @@ def getPoints_SIFT(im1, im2):
     # Sort them in the order of their distance.
     matches = sorted(matches, key=lambda x: x.distance)
 
-    # Draw first 10 matches.
-    # im3 = cv2.drawMatches(im1, kp1, im2, kp2, matches[:10], None)
+    # Draw first points_num matches.
+    # im3 = cv2.drawMatches(im1, kp1, im2, kp2, matches[:points_num], None)
     # plt.imshow(im3), plt.show()
 
     p1, p2 = [], []
-    for match in matches[:10]:
+    for match in matches[:points_num]:
         p1.append(kp1[match.queryIdx].pt)
         p2.append(kp2[match.trainIdx].pt)
 
