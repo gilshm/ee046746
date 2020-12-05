@@ -47,9 +47,9 @@ def computeH(p1, p2):
     A[1::2, 8] = -1 * p2[1, :]
 
     u, s, vh = np.linalg.svd(A, full_matrices=True)
-    H2to1 = vh[-1, :].reshape((3, 3))
+    H1to2 = vh[-1, :].reshape((3, 3))
 
-    return H2to1
+    return H1to2
 
 
 def warpH(im1, H, out_size):
