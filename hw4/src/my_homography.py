@@ -170,15 +170,15 @@ if __name__ == '__main__':
     #               [1.12866686e-06, -2.33769309e-07,  1.77398500e-03]])
 
     # Finding H with SIFT keypoints
-    p1, p2 = getPoints_SIFT(im1, im2)
-    H = computeH(p1, p2)
+    p1, p2 = getPoints_SIFT(im1, im2, points_num=100)
+    
+    # The number of iterations can be computed more intelligently
+    H = ransacH(p1, p2, 100, 2)
 
-    # warped_img = warpH(im2_color, H, (800, 2000))
-    # pano_img = imageStitching(im1_color, warped_img)
+    warped_img = warpH(im2_color, H, (800, 2000))
+    pano_img = imageStitching(im1_color, warped_img)
 
-    # plt.figure(figsize=(16, 12))
-    # plt.imshow(pano_img)
-    # plt.axis('off')
-    # plt.show()
-
-
+    plt.figure(figsize=(16, 12))
+    plt.imshow(pano_img)
+    plt.axis('off')
+    plt.show()
